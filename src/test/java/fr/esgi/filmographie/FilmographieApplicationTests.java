@@ -1,4 +1,4 @@
-package com.example.demo;
+package fr.esgi.filmographie;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
