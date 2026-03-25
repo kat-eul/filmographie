@@ -129,7 +129,7 @@ class MovieServiceTest {
     class DeleteTests {
         @Test
         void shouldDeleteWhenExists() throws NotFoundException {
-            final var id = 1L;
+            final Long id = 1L;
             doReturn(true).when(movieRepository).existsById(id);
 
             movieService.delete(id);
@@ -139,7 +139,7 @@ class MovieServiceTest {
 
         @Test
         void shouldThrowExceptionWhenDeletingNonExistent() {
-            final var id = 1L;
+            final Long id = 1L;
             doReturn(false).when(movieRepository).existsById(id);
 
             assertThatThrownBy(() -> movieService.delete(id))

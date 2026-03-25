@@ -11,7 +11,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
 
@@ -28,13 +27,11 @@ public class MovieEntity {
     private Long id;
 
     @Column(length = 200, nullable = false)
-    @Length(max = 200)
     private String title;
 
     private LocalDate releaseDate;
 
     @Column(length = 500)
-    @Length(max = 500)
     private String summary;
 }
 

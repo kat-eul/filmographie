@@ -4,19 +4,16 @@ import fr.esgi.filmographie.exception.NotFoundException;
 import fr.esgi.filmographie.movie.dto.MovieDTO;
 import fr.esgi.filmographie.movie.exception.MovieNotFoundException;
 import fr.esgi.filmographie.movie.mapper.MovieMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class MovieService {
     private final MovieRepository movieRepository;
     private final MovieMapper movieMapper;
-
-    public MovieService(final MovieRepository movieRepository, final MovieMapper movieMapper) {
-        this.movieRepository = movieRepository;
-        this.movieMapper = movieMapper;
-    }
 
     public List<MovieDTO> getAll() {
         return this.movieRepository.findAll().stream()
@@ -49,12 +46,11 @@ public class MovieService {
         return this.movieMapper.entityToDto(createdMovieEntity);
     }
 
-    public void delete(final Long id) throws NotFoundException {
-        if (this.movieRepository.existsById(id)) {
-            this.movieRepository.deleteById(id);
-            return;
+    public void delete(final Long id) {
+        boolean movieNonExistant = !this.movieRepository.existsById(id);
+        if (movieNonExistant) {
+            throw new MovieNotFoundException(id);
         }
-
-        throw new MovieNotFoundException(id);
+        this.movieRepository.deleteById(id);
     }
 }

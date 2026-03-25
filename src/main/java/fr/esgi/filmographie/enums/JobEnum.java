@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum PersonEnum {
+public enum JobEnum {
     ACTOR("Actor"),
     REALISATOR("Realisator"),
     REALISATOR_ACTOR("Realisator and Actor");
