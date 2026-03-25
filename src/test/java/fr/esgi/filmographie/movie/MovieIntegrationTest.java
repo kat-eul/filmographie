@@ -51,7 +51,7 @@ class MovieIntegrationTest {
                 .build();
 
         // CREATE
-        final var createResponse = mockMvc.perform(post("/v1/movies/")
+        final var createResponse = mockMvc.perform(post("/v1/movies")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(movieToCreate)))
                 .andExpect(status().isCreated())
@@ -88,13 +88,13 @@ class MovieIntegrationTest {
     }
 
     @Test
-    @DisplayName("GET /movies/ should return all records in DB")
+    @DisplayName("GET /movies should return all records in DB")
     void shouldReturnAllMovies() throws Exception {
         final var m1 = MovieEntity.builder().title("Movie 1").build();
         final var m2 = MovieEntity.builder().title("Movie 2").build();
         movieRepository.saveAll(List.of(m1, m2));
 
-        mockMvc.perform(get("/v1/movies/"))
+        mockMvc.perform(get("/v1/movies"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
     }

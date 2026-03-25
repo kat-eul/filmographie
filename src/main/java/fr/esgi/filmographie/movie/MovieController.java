@@ -25,7 +25,7 @@ public class MovieController {
         this.movieService = movieService;
     }
 
-    @GetMapping(path = "/")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<MovieDTO> getMovieById() {
         return this.movieService.getAll();
@@ -37,7 +37,7 @@ public class MovieController {
         return this.movieService.getById(movieId);
     }
 
-    @PostMapping(path = "/")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public MovieDTO createMovie(@Valid @RequestBody MovieDTO movieDTO) {
         return this.movieService.create(movieDTO);
