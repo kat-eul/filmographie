@@ -5,15 +5,23 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
 
-@Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+@Table(name = "movies")
 public class MovieEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,3 +37,5 @@ public class MovieEntity {
     @Length(max = 500)
     private String summary;
 }
+
+

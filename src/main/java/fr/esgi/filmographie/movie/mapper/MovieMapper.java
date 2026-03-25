@@ -4,18 +4,13 @@ import fr.esgi.filmographie.movie.MovieEntity;
 import fr.esgi.filmographie.movie.dto.MovieDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface MovieMapper {
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "title", source = "title")
-    @Mapping(target = "releaseDate", source = "releaseDate")
-    @Mapping(target = "summary", source = "summary")
     MovieDTO entityToDto(final MovieEntity movieEntity);
-
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "title", source = "title")
-    @Mapping(target = "releaseDate", source = "releaseDate")
-    @Mapping(target = "summary", source = "summary")
     MovieEntity dtoToEntity(final MovieDTO movieDTO);
+
+    @Mapping(target = "id", ignore = true)
+    void updateEntity(@MappingTarget MovieEntity movieEntity, final MovieDTO movieDTO);
 }
