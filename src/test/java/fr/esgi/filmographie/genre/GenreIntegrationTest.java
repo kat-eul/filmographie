@@ -1,6 +1,6 @@
-package fr.esgi.filmographie.movie;
+package fr.esgi.filmographie.genre;
 
-import fr.esgi.filmographie.movie.dto.MovieDTO;
+import fr.esgi.filmographie.genre.dto.GenreDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class MovieIntegrationTest {
+class GenreIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -35,66 +34,64 @@ class MovieIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private MovieRepository movieRepository;
+    private GenreRepository genreRepository;
 
     @BeforeEach
     void setUp() {
-        movieRepository.deleteAll();
+        genreRepository.deleteAll();
     }
 
     @Test
-    void shouldCreateFindUpdateAndDeleteMovie() throws Exception {
-        final var movieToCreate = MovieDTO.builder()
-                .title("Interstellar")
-                .summary("Space exploration")
-                .releaseDate(LocalDate.of(2014, 11, 7))
+    void shouldCreateFindUpdateAndDeleteGenre() throws Exception {
+        final var genreToCreate = GenreDTO.builder()
+                .name("Comedy")
                 .build();
 
         // CREATE
-        final var createResponse = mockMvc.perform(post("/v1/movies/")
+        final var createResponse = mockMvc.perform(post("/v1/genres")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(movieToCreate)))
+                        .content(objectMapper.writeValueAsString(genreToCreate)))
                 .andExpect(status().isCreated())
                 .andReturn();
 
         final var createdMovie = objectMapper.readValue(
                 createResponse.getResponse().getContentAsString(),
-                MovieDTO.class
+                GenreDTO.class
         );
 
-        final var movieId = createdMovie.getId();
-        assertThat(movieId).isNotNull();
+        final var genreId = createdMovie.getId();
+        assertThat(genreId).isNotNull();
 
         // GET BY ID
-        mockMvc.perform(get("/v1/movies/{movieId}", movieId))
+        mockMvc.perform(get("/v1/genres/{genreId}", genreId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Interstellar"));
+                .andExpect(jsonPath("$.name").value("Comedy"));
 
         // UPDATE
-        createdMovie.setTitle("Interstellar - Director's Cut");
-        mockMvc.perform(put("/v1/movies/{movieId}", movieId)
+        createdMovie.setName("Romance");
+        mockMvc.perform(put("/v1/genres/{genreId}", genreId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createdMovie)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Interstellar - Director's Cut"));
+                .andExpect(jsonPath("$.name").value("Romance"));
 
         // DELETE
-        mockMvc.perform(delete("/v1/movies/{movieId}", movieId))
+        mockMvc.perform(delete("/v1/genres/{genreId}", genreId))
                 .andExpect(status().isNoContent());
 
         // VERIFY DELETED
-        mockMvc.perform(get("/v1/movies/{movieId}", movieId))
+        mockMvc.perform(get("/v1/genres/{genreId}", genreId))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    @DisplayName("GET /movies/ should return all records in DB")
+    @DisplayName("GET v1/genres should return all records in DB")
     void shouldReturnAllMovies() throws Exception {
-        final var m1 = MovieEntity.builder().title("Movie 1").build();
-        final var m2 = MovieEntity.builder().title("Movie 2").build();
-        movieRepository.saveAll(List.of(m1, m2));
+        final var m1 = GenreEntity.builder().name("Action").build();
+        final var m2 = GenreEntity.builder().name("Comedy").build();
+        genreRepository.saveAll(List.of(m1, m2));
 
-        mockMvc.perform(get("/v1/movies/"))
+        mockMvc.perform(get("/v1/genres"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
     }
