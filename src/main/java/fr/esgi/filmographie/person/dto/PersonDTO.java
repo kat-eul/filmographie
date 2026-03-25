@@ -1,4 +1,4 @@
-package fr.esgi.filmographie.dto;
+package fr.esgi.filmographie.person.dto;
 
 import fr.esgi.filmographie.enums.PersonEnum;
 import jakarta.validation.constraints.NotEmpty;

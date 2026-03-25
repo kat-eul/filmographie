@@ -1,4 +1,4 @@
-package fr.esgi.filmographie.entity;
+package fr.esgi.filmographie.person;
 
 import fr.esgi.filmographie.enums.PersonEnum;
 import jakarta.persistence.Entity;
