@@ -1,6 +1,5 @@
-package fr.esgi.filmographie.repository;
+package fr.esgi.filmographie.movie;
 
-import fr.esgi.filmographie.entity.MovieEntity;
 import org.springframework.data.repository.ListCrudRepository;
 
 public interface MovieRepository extends ListCrudRepository<MovieEntity, Long> {

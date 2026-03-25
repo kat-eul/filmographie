@@ -1,4 +1,4 @@
-package fr.esgi.filmographie.entity;
+package fr.esgi.filmographie.movie;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

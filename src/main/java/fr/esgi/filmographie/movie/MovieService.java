@@ -1,9 +1,8 @@
-package fr.esgi.filmographie.service;
+package fr.esgi.filmographie.movie;
 
-import fr.esgi.filmographie.dto.MovieDTO;
 import fr.esgi.filmographie.exception.NotFoundException;
-import fr.esgi.filmographie.mapper.MovieMapper;
-import fr.esgi.filmographie.repository.MovieRepository;
+import fr.esgi.filmographie.movie.dto.MovieDTO;
+import fr.esgi.filmographie.movie.mapper.MovieMapper;
 import org.springframework.stereotype.Service;
 
 @Service

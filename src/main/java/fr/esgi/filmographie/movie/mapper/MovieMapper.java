@@ -1,7 +1,7 @@
-package fr.esgi.filmographie.mapper;
+package fr.esgi.filmographie.movie.mapper;
 
-import fr.esgi.filmographie.dto.MovieDTO;
-import fr.esgi.filmographie.entity.MovieEntity;
+import fr.esgi.filmographie.movie.MovieEntity;
+import fr.esgi.filmographie.movie.dto.MovieDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

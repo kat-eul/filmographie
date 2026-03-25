@@ -1,4 +1,4 @@
-package fr.esgi.filmographie.dto;
+package fr.esgi.filmographie.movie.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
