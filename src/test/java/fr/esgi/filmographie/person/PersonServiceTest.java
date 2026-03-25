@@ -1,6 +1,7 @@
 package fr.esgi.filmographie.person;
 
 import fr.esgi.filmographie.enums.JobEnum;
+import fr.esgi.filmographie.exception.MissingPersonNameException;
 import fr.esgi.filmographie.exception.NotFoundException;
 import fr.esgi.filmographie.person.dto.PersonDTO;
 import fr.esgi.filmographie.person.exception.PersonNotFoundException;
@@ -8,17 +9,21 @@ import fr.esgi.filmographie.person.mapper.PersonMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.doReturn;
 
+@ExtendWith(MockitoExtension.class)
 public class PersonServiceTest {
 
     @InjectMocks
@@ -38,10 +43,11 @@ public class PersonServiceTest {
             final PersonEntity entity2 = PersonEntity.builder().id(2L).firstName("Tata").lastName("Titi").job(JobEnum.REALISATOR).build();
             final PersonDTO dto1 = PersonDTO.builder().id(1L).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
             final PersonDTO dto2 = PersonDTO.builder().id(2L).firstName("Tata").lastName("Titi").job(JobEnum.REALISATOR).build();
+            final List<PersonEntity> enties = List.of(entity1, entity2);
+            final List<PersonDTO> dtos = List.of(dto1, dto2);
 
-            doReturn(List.of(entity1, entity2)).when(personRepository).findAll();
-            doReturn(dto1).when(personMapper).toDto(entity1);
-            doReturn(dto2).when(personMapper).toDto(entity2);
+            doReturn(enties).when(personRepository).findAll();
+            doReturn(dtos).when(personMapper).toDto(enties);
 
             final List<PersonDTO> result = personService.getAllPersons();
 
@@ -81,27 +87,66 @@ public class PersonServiceTest {
             final PersonDTO inputDto = PersonDTO.builder().id(1L).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
             final PersonEntity entity = PersonEntity.builder().id(1L).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
             final PersonDTO outputDto = PersonDTO.builder().id(1L).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
-            final PersonEntity savedEntity = PersonEntity.builder().id(1L).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
 
             doReturn(entity).when(personMapper).toEntity(inputDto);
-            doReturn(savedEntity).when(personRepository).save(entity);
-            doReturn(outputDto).when(personMapper).toDto(savedEntity);
+            doReturn(entity).when(personRepository).save(entity);
+            doReturn(outputDto).when(personMapper).toDto(entity);
 
             final PersonDTO result = personService.createPerson(inputDto);
 
             assertThat(result).isEqualTo(outputDto);
             verify(personRepository).save(entity);
         }
+
+        @Test
+        void shouldThrowMissingPersonNameExceptionWhenPersonDontHaveLastNameOrNickName(){
+            final PersonDTO inputDto = PersonDTO.builder().id(1L).firstName("Toto").job(JobEnum.ACTOR).build();
+            assertThatThrownBy(() -> personService.createPerson(inputDto))
+                    .isInstanceOf(MissingPersonNameException.class);
+
+        }
+        @Test
+        void shouldThrowMissingPersonNameExceptionWhenPersonDontHaveFistNameOrNickName(){
+            final PersonDTO inputDto = PersonDTO.builder().id(1L).lastName("Toto").job(JobEnum.ACTOR).build();
+            assertThatThrownBy(() -> personService.createPerson(inputDto))
+                    .isInstanceOf(MissingPersonNameException.class);
+        }
+        @Test
+        void shouldNotThrowMissingPersonNameExceptionWhenPersonHaveLastNameAndFirstName(){
+            final PersonDTO inputDto = PersonDTO.builder().id(1L).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
+            final PersonEntity entity = PersonEntity.builder().id(1L).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
+            final PersonDTO outputDto = PersonDTO.builder().id(1L).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
+
+            doReturn(entity).when(personMapper).toEntity(inputDto);
+            doReturn(entity).when(personRepository).save(entity);
+            doReturn(outputDto).when(personMapper).toDto(entity);
+
+            assertThatCode(() -> personService.createPerson(inputDto))
+                    .doesNotThrowAnyException();
+        }
+        @Test
+        void shouldNotThrowMissingPersonNameExceptionWhenPersonHaveNickName(){
+            final PersonDTO inputDto = PersonDTO.builder().id(1L).nickName("Toto").job(JobEnum.ACTOR).build();
+            final PersonEntity entity = PersonEntity.builder().id(1L).nickName("Toto").job(JobEnum.ACTOR).build();
+            final PersonDTO outputDto = PersonDTO.builder().id(1L).nickName("Toto").job(JobEnum.ACTOR).build();
+
+            doReturn(entity).when(personMapper).toEntity(inputDto);
+            doReturn(entity).when(personRepository).save(entity);
+            doReturn(outputDto).when(personMapper).toDto(entity);
+
+            assertThatCode(() -> personService.createPerson(inputDto))
+                    .doesNotThrowAnyException();
+        }
     }
 
     @Nested
     class UpdateTests {
         @Test
-        void shouldUpdateExistingMovie() throws NotFoundException {
+        void shouldUpdateExistingPerson() throws NotFoundException {
             final Long id = 1L;
-            final PersonDTO updateInfo = PersonDTO.builder().id(1L).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
-            final PersonEntity existingPerson = PersonEntity.builder().id(1L).firstName("Toto").lastName("Titi").job(JobEnum.REALISATOR).build();
-            final PersonDTO updatedDto = PersonDTO.builder().id(1L).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
+            final PersonDTO updateInfo = PersonDTO.builder().id(id).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
+            final PersonEntity existingPerson = PersonEntity.builder().id(id).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
+            final PersonDTO updatedDto = PersonDTO.builder().id(id).firstName("Toto").lastName("Titi").job(JobEnum.REALISATOR).build();
 
             doReturn(Optional.of(existingPerson)).when(personRepository).findById(id);
             doReturn(existingPerson).when(personRepository).save(existingPerson);
@@ -112,6 +157,57 @@ public class PersonServiceTest {
             assertThat(result.getJob()).isEqualTo(JobEnum.REALISATOR);
             verify(personRepository).save(existingPerson);
         }
+
+        @Test
+        void shouldThrowMissingPersonNameExceptionWhenPersonDontHaveLastNameOrNickName(){
+            final PersonDTO inputDto = PersonDTO.builder().id(1L).firstName("Toto").job(JobEnum.ACTOR).build();
+            assertThatThrownBy(() -> personService.updatePerson(inputDto))
+                    .isInstanceOf(MissingPersonNameException.class);
+
+        }
+        @Test
+        void shouldThrowMissingPersonNameExceptionWhenPersonDontHaveFistNameOrNickName(){
+            final PersonDTO inputDto = PersonDTO.builder().id(1L).lastName("Toto").job(JobEnum.ACTOR).build();
+            assertThatThrownBy(() -> personService.updatePerson(inputDto))
+                    .isInstanceOf(MissingPersonNameException.class);
+        }
+        @Test
+        void shouldNotThrowMissingPersonNameExceptionWhenPersonHaveLastNameAndFirstName(){
+            final Long id = 1L;
+            final PersonDTO updateInfo = PersonDTO.builder().id(id).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
+            final PersonEntity existingPerson = PersonEntity.builder().id(id).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
+            final PersonDTO updatedDto = PersonDTO.builder().id(id).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
+
+            doReturn(Optional.of(existingPerson)).when(personRepository).findById(id);
+            doReturn(existingPerson).when(personRepository).save(existingPerson);
+            doReturn(updatedDto).when(personMapper).toDto(existingPerson);
+
+            assertThatCode(() -> personService.updatePerson(updateInfo))
+                    .doesNotThrowAnyException();
+        }
+        @Test
+        void shouldNotThrowMissingPersonNameExceptionWhenPersonHaveNickName(){
+            final Long id = 1L;
+            final PersonDTO updateInfo = PersonDTO.builder().id(id).nickName("Toto").job(JobEnum.ACTOR).build();
+            final PersonEntity existingPerson = PersonEntity.builder().id(id).nickName("Toto").job(JobEnum.ACTOR).build();
+            final PersonDTO updatedDto = PersonDTO.builder().id(id).nickName("Toto").job(JobEnum.ACTOR).build();
+
+            doReturn(Optional.of(existingPerson)).when(personRepository).findById(id);
+            doReturn(existingPerson).when(personRepository).save(existingPerson);
+            doReturn(updatedDto).when(personMapper).toDto(existingPerson);
+
+            assertThatCode(() -> personService.updatePerson(updateInfo))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        void shouldThrowPersonNotFoundException(){
+            final PersonDTO updateInfo = PersonDTO.builder().id(1L).nickName("Toto").job(JobEnum.ACTOR).build();
+            doReturn(Optional.empty()).when(personRepository).findById(1L);
+            assertThatThrownBy(() -> personService.updatePerson(updateInfo))
+                    .isInstanceOf(PersonNotFoundException.class);
+        }
+
     }
 
     @Nested
@@ -138,5 +234,4 @@ public class PersonServiceTest {
             verify(personRepository, never()).deleteById(anyLong());
         }
     }
-
 }

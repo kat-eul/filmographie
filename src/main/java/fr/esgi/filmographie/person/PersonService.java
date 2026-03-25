@@ -58,7 +58,10 @@ public class PersonService {
     }
 
     private boolean checkPersonGetNickNameOrFirstNameAndLastName(PersonDTO personDTO){
-        return (!personDTO.getFirstName().isBlank() && !personDTO.getLastName().isBlank())
-                || !personDTO.getNickName().isBlank();
+        return (hasText(personDTO.getFirstName()) && hasText(personDTO.getLastName()))
+                || hasText(personDTO.getNickName());
+    }
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 }
