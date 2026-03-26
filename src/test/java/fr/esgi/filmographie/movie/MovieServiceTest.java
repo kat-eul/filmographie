@@ -1,7 +1,12 @@
 package fr.esgi.filmographie.movie;
 
 import fr.esgi.filmographie.exception.NotFoundException;
+import fr.esgi.filmographie.genre.GenreEntity;
+import fr.esgi.filmographie.genre.GenreRepository;
+import fr.esgi.filmographie.genre.dto.GenreDTO;
+import fr.esgi.filmographie.genre.exception.GenreNotFoundException;
 import fr.esgi.filmographie.movie.dto.MovieDTO;
+import fr.esgi.filmographie.movie.dto.MovieWithAllInfoDTO;
 import fr.esgi.filmographie.movie.exception.MovieNotFoundException;
 import fr.esgi.filmographie.movie.mapper.MovieMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +22,9 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -30,6 +37,9 @@ class MovieServiceTest {
 
     @Mock
     private MovieRepository movieRepository;
+
+    @Mock
+    private GenreRepository genreRepository;
 
     @Mock
     private MovieMapper movieMapper;
@@ -62,10 +72,10 @@ class MovieServiceTest {
         void shouldReturnMovieDTOWhenFound() throws NotFoundException {
             final var id = 1L;
             final var entity = MovieEntity.builder().id(id).build();
-            final var dto = MovieDTO.builder().id(id).build();
+            final var dto = MovieWithAllInfoDTO.builder().id(id).build();
 
             doReturn(Optional.of(entity)).when(movieRepository).findById(id);
-            doReturn(dto).when(movieMapper).entityToDto(entity);
+            doReturn(dto).when(movieMapper).entityToWithAllInfoDto(entity);
 
             final var result = movieService.getById(id);
 
@@ -121,6 +131,39 @@ class MovieServiceTest {
 
             assertThat(result.getTitle()).isEqualTo("New Title");
             verify(movieRepository).save(existingMovie);
+        }
+
+        @Test
+        void shouldAddExistingGenreToExistingMovie() throws GenreNotFoundException, MovieNotFoundException {
+            final var genreId = 1L;
+            final var movieId = 1L;
+
+            final var movie = MovieEntity.builder().id(movieId).title("Superman").build();
+            final var genre = GenreEntity.builder().id(genreId).name("Action").build();
+
+            final var genreDto = GenreDTO.builder().id(1L).name("Action").build();
+
+            final var movieWithGenre = MovieWithAllInfoDTO.builder()
+                    .id(movieId)
+                    .title("Superman")
+                    .genres(List.of(genreDto))
+                    .build();
+
+            doReturn(Optional.of(movie)).when(movieRepository).findById(movieId);
+            doReturn(Optional.of(genre)).when(genreRepository).findById(genreId);
+            doAnswer(invocation -> {
+                final var movieEntity = invocation.getArgument(0, MovieEntity.class);
+                movieEntity.addGenre(genre);
+                return movieEntity;
+            }).when(movieRepository).save(any(MovieEntity.class));
+            doReturn(movieWithGenre).when(movieMapper).entityToWithAllInfoDto(movie);
+
+            final var result = movieService.addGenreToMovie(movieId, genreId);
+
+            assertThat(result.getId()).isEqualTo(1L);
+            assertThat(result.getTitle()).isEqualTo("Superman");
+            assertThat(result.getGenres()).isNotEmpty();
+            assertThat(result.getGenres()).containsExactly(genreDto);
         }
     }
 
