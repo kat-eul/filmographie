@@ -1,6 +1,6 @@
 package fr.esgi.filmographie.person;
 
-import fr.esgi.filmographie.exception.MissingPersonNameException;
+import fr.esgi.filmographie.person.exception.MissingPersonNameException;
 import fr.esgi.filmographie.person.dto.PersonDTO;
 import fr.esgi.filmographie.person.exception.PersonNotFoundException;
 import fr.esgi.filmographie.person.mapper.PersonMapper;
