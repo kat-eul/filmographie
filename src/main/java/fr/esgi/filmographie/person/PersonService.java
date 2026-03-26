@@ -23,7 +23,8 @@ public class PersonService {
         return personMapper.toDto(personEntity);
     }
 
-    public PersonDTO updatePerson(PersonDTO personDTO){
+    public PersonDTO updatePerson(Long id,PersonDTO personDTO){
+        personDTO.setId(id);
         personGetNickNameOrFirstNameAndLastName(personDTO);
         personExist(personDTO.getId());
         PersonEntity personEntity = personMapper.toEntity(personDTO);

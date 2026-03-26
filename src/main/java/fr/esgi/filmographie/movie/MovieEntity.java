@@ -47,7 +47,9 @@ public class MovieEntity {
             joinColumns = @JoinColumn(name = "genre_id"),
             inverseJoinColumns = @JoinColumn(name = "movie_id")
     )
-    private final List<GenreEntity> genres = new ArrayList<>();
+
+    @Builder.Default
+    private List<GenreEntity> genres = new ArrayList<>();
 
     public void addGenre(GenreEntity genre) {
         if (this.genres.stream().anyMatch(g -> g.getId().equals(genre.getId()))) {

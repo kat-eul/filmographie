@@ -45,8 +45,7 @@ public class PersonController {
     @PutMapping("/{personId}")
     @ResponseStatus(HttpStatus.OK)
     public PersonDTO updatePerson(@PathVariable Long personId, @Valid @RequestBody PersonDTO personDTO){
-        personDTO.setId(personId);
-        return personService.updatePerson(personDTO);
+        return personService.updatePerson(personId,personDTO);
     }
 
     @DeleteMapping("/{personId}")

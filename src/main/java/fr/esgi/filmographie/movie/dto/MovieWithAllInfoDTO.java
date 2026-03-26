@@ -15,5 +15,5 @@ import java.util.List;
 @NoArgsConstructor
 @SuperBuilder
 public class MovieWithAllInfoDTO extends MovieDTO {
-    public List<GenreDTO> genres;
+    private List<GenreDTO> genres;
 }

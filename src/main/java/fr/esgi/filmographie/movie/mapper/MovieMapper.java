@@ -1,5 +1,6 @@
 package fr.esgi.filmographie.movie.mapper;
 
+import fr.esgi.filmographie.genre.mapper.GenreMapper;
 import fr.esgi.filmographie.movie.MovieEntity;
 import fr.esgi.filmographie.movie.dto.MovieDTO;
 import fr.esgi.filmographie.movie.dto.MovieWithAllInfoDTO;
@@ -7,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = GenreMapper.class)
 public interface MovieMapper {
     MovieDTO entityToDto(final MovieEntity movieEntity);
 

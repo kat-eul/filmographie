@@ -34,7 +34,8 @@ public class GenreEntity {
     private String name;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    private final List<MovieEntity> movies = new ArrayList<>();
+    @Builder.Default
+    private List<MovieEntity> movies = new ArrayList<>();
 
     public void addMovie(MovieEntity movie) {
         if (this.movies.stream().anyMatch(m -> m.getId().equals(movie.getId()))) {
