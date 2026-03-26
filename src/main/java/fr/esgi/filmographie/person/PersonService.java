@@ -25,9 +25,8 @@ public class PersonService {
 
     public PersonDTO updatePerson(PersonDTO personDTO){
         personGetNickNameOrFirstNameAndLastName(personDTO);
-        PersonEntity personEntity = personRepository.findById(personDTO.getId())
-                .orElseThrow(() -> new PersonNotFoundException(personDTO.getId()));
-        personMapper.updateEntity(personEntity,personDTO);
+        personExist(personDTO.getId());
+        PersonEntity personEntity = personMapper.toEntity(personDTO);
         personRepository.save(personEntity);
         return personMapper.toDto(personEntity);
     }
@@ -44,10 +43,7 @@ public class PersonService {
     }
 
     public void deletePerson(Long id){
-        boolean personNonExistant = !this.personRepository.existsById(id);
-        if (personNonExistant) {
-            throw new PersonNotFoundException(id);
-        }
+        personExist(id);
         personRepository.deleteById(id);
     }
 
@@ -63,5 +59,12 @@ public class PersonService {
     }
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    private void personExist(Long id){
+        boolean personNonExistant = !this.personRepository.existsById(id);
+        if (personNonExistant) {
+            throw new PersonNotFoundException(id);
+        }
     }
 }

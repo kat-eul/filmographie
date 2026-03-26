@@ -148,7 +148,8 @@ public class PersonServiceTest {
             final PersonEntity existingPerson = PersonEntity.builder().id(id).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
             final PersonDTO updatedDto = PersonDTO.builder().id(id).firstName("Toto").lastName("Titi").job(JobEnum.REALISATOR).build();
 
-            doReturn(Optional.of(existingPerson)).when(personRepository).findById(id);
+            doReturn(true).when(personRepository).existsById(id);
+            doReturn(existingPerson).when(personMapper).toEntity(updateInfo);
             doReturn(existingPerson).when(personRepository).save(existingPerson);
             doReturn(updatedDto).when(personMapper).toDto(existingPerson);
 
@@ -178,7 +179,8 @@ public class PersonServiceTest {
             final PersonEntity existingPerson = PersonEntity.builder().id(id).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
             final PersonDTO updatedDto = PersonDTO.builder().id(id).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
 
-            doReturn(Optional.of(existingPerson)).when(personRepository).findById(id);
+            doReturn(true).when(personRepository).existsById(id);
+            doReturn(existingPerson).when(personMapper).toEntity(updateInfo);
             doReturn(existingPerson).when(personRepository).save(existingPerson);
             doReturn(updatedDto).when(personMapper).toDto(existingPerson);
 
@@ -192,7 +194,8 @@ public class PersonServiceTest {
             final PersonEntity existingPerson = PersonEntity.builder().id(id).nickName("Toto").job(JobEnum.ACTOR).build();
             final PersonDTO updatedDto = PersonDTO.builder().id(id).nickName("Toto").job(JobEnum.ACTOR).build();
 
-            doReturn(Optional.of(existingPerson)).when(personRepository).findById(id);
+            doReturn(true).when(personRepository).existsById(id);
+            doReturn(existingPerson).when(personMapper).toEntity(updateInfo);
             doReturn(existingPerson).when(personRepository).save(existingPerson);
             doReturn(updatedDto).when(personMapper).toDto(existingPerson);
 
@@ -203,7 +206,7 @@ public class PersonServiceTest {
         @Test
         void shouldThrowPersonNotFoundException(){
             final PersonDTO updateInfo = PersonDTO.builder().id(1L).nickName("Toto").job(JobEnum.ACTOR).build();
-            doReturn(Optional.empty()).when(personRepository).findById(1L);
+            doReturn(false).when(personRepository).existsById(1L);
             assertThatThrownBy(() -> personService.updatePerson(updateInfo))
                     .isInstanceOf(PersonNotFoundException.class);
         }
