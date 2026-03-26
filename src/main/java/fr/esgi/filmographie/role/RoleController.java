@@ -2,6 +2,7 @@ package fr.esgi.filmographie.role;
 
 import fr.esgi.filmographie.role.dto.RoleDTO;
 import fr.esgi.filmographie.role.exception.RoleNotFoundException;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -26,13 +27,13 @@ public class RoleController {
 
         @PostMapping()
         @ResponseStatus(HttpStatus.CREATED)
-        public RoleDTO create(@RequestBody RoleDTO roleDTO) {
+        public RoleDTO create(@Valid @RequestBody RoleDTO roleDTO) {
             return this.roleService.create(roleDTO);
         }
 
         @PutMapping("/{id}")
         @ResponseStatus(HttpStatus.OK)
-        public RoleDTO update(@PathVariable Long id, @RequestBody RoleDTO roleDTO) throws RoleNotFoundException {
+        public RoleDTO update(@PathVariable Long id, @Valid @RequestBody RoleDTO roleDTO) throws RoleNotFoundException {
             return this.roleService.update(id, roleDTO);
         }
 

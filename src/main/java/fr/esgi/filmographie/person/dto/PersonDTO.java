@@ -1,15 +1,18 @@
 package fr.esgi.filmographie.person.dto;
 
 import fr.esgi.filmographie.enums.JobEnum;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class PersonDTO {
     private Long id;
@@ -23,8 +26,7 @@ public class PersonDTO {
     @Size(max = 50)
     private String nickName;
 
-    @NotEmpty
+    // NB: @NotEmpty ne s'applique pas aux enums; @NotNull suffit pour la validation.
     @NotNull
-    @Size(max = 50)
     private JobEnum job;
 }
