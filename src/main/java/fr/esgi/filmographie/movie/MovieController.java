@@ -4,6 +4,7 @@ import fr.esgi.filmographie.exception.NotFoundException;
 import fr.esgi.filmographie.movie.dto.MovieDTO;
 import fr.esgi.filmographie.movie.dto.MovieWithAllInfoDTO;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,12 +20,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/v1/movies")
+@AllArgsConstructor
 public class MovieController {
     private final MovieService movieService;
-
-    public MovieController(final MovieService movieService) {
-        this.movieService = movieService;
-    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)

@@ -16,7 +16,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -35,13 +34,11 @@ public class MovieEntity {
     private Long id;
 
     @Column(length = 200, nullable = false)
-    @Length(max = 200)
     private String title;
 
     private LocalDate releaseDate;
 
     @Column(length = 500)
-    @Length(max = 500)
     private String summary;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -50,7 +47,9 @@ public class MovieEntity {
             joinColumns = @JoinColumn(name = "genre_id"),
             inverseJoinColumns = @JoinColumn(name = "movie_id")
     )
-    private final List<GenreEntity> genres = new ArrayList<>();
+
+    @Builder.Default
+    private List<GenreEntity> genres = new ArrayList<>();
 
     public void addGenre(GenreEntity genre) {
         if (this.genres.stream().anyMatch(g -> g.getId().equals(genre.getId()))) {

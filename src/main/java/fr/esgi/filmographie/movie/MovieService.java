@@ -50,13 +50,12 @@ public class MovieService {
         return this.movieMapper.entityToDto(createdMovieEntity);
     }
 
-    public void delete(final Long id) throws NotFoundException {
-        if (this.movieRepository.existsById(id)) {
-            this.movieRepository.deleteById(id);
-            return;
+    public void delete(final Long id) {
+        boolean movieNonExistant = !this.movieRepository.existsById(id);
+        if (movieNonExistant) {
+            throw new MovieNotFoundException(id);
         }
-
-        throw new MovieNotFoundException(id);
+        this.movieRepository.deleteById(id);
     }
 
     public MovieWithAllInfoDTO addGenreToMovie(Long movieId, Long genreId) throws MovieNotFoundException, GenreNotFoundException {
