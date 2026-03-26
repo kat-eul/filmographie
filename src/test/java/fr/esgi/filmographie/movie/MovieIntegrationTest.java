@@ -1,5 +1,7 @@
 package fr.esgi.filmographie.movie;
 
+import fr.esgi.filmographie.genre.GenreEntity;
+import fr.esgi.filmographie.genre.GenreRepository;
 import fr.esgi.filmographie.movie.dto.MovieDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,6 +39,9 @@ class MovieIntegrationTest {
     @Autowired
     private MovieRepository movieRepository;
 
+    @Autowired
+    private GenreRepository genreRepository;
+
     @BeforeEach
     void setUp() {
         movieRepository.deleteAll();
@@ -44,6 +49,9 @@ class MovieIntegrationTest {
 
     @Test
     void shouldCreateFindUpdateAndDeleteMovie() throws Exception {
+        final var SciFiGenre = GenreEntity.builder().name("Sci-Fi").build();
+        final var sciFiGenreId = this.genreRepository.save(SciFiGenre).getId();
+
         final var movieToCreate = MovieDTO.builder()
                 .title("Interstellar")
                 .summary("Space exploration")
@@ -68,7 +76,8 @@ class MovieIntegrationTest {
         // GET BY ID
         mockMvc.perform(get("/v1/movies/{movieId}", movieId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Interstellar"));
+                .andExpect(jsonPath("$.title").value("Interstellar"))
+                .andExpect(jsonPath("$.genres").isEmpty());
 
         // UPDATE
         createdMovie.setTitle("Interstellar - Director's Cut");
@@ -77,6 +86,15 @@ class MovieIntegrationTest {
                         .content(objectMapper.writeValueAsString(createdMovie)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Interstellar - Director's Cut"));
+
+        // ADD GENRE
+        mockMvc.perform(post("/v1/movies/{movieId}/genres/{genreId}", movieId, sciFiGenreId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.genres").isNotEmpty())
+                .andExpect(jsonPath("$.genres").isArray())
+                .andExpect(jsonPath("$.genres[0].name").value("Sci-Fi"));
+
 
         // DELETE
         mockMvc.perform(delete("/v1/movies/{movieId}", movieId))
