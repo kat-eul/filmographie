@@ -8,10 +8,12 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface GenreMapper {
+    @Mapping(target = "movies", ignore = true)
     GenreEntity dtoToEntity(final GenreDTO genreDTO);
 
     GenreDTO entityToDto(final GenreEntity genreEntity);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "movies", ignore = true)
     void updateEntity(@MappingTarget GenreEntity genreEntity, GenreDTO genreDTO);
 }

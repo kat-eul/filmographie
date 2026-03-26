@@ -2,6 +2,7 @@ package fr.esgi.filmographie.movie;
 
 import fr.esgi.filmographie.exception.NotFoundException;
 import fr.esgi.filmographie.movie.dto.MovieDTO;
+import fr.esgi.filmographie.movie.dto.MovieWithAllInfoDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,7 +34,7 @@ public class MovieController {
 
     @GetMapping(path = "/{movieId}")
     @ResponseStatus(HttpStatus.OK)
-    public MovieDTO getMovieById(@PathVariable Long movieId) throws NotFoundException {
+    public MovieWithAllInfoDTO getMovieById(@PathVariable Long movieId) throws NotFoundException {
         return this.movieService.getById(movieId);
     }
 
@@ -41,6 +42,12 @@ public class MovieController {
     @ResponseStatus(HttpStatus.CREATED)
     public MovieDTO createMovie(@Valid @RequestBody MovieDTO movieDTO) {
         return this.movieService.create(movieDTO);
+    }
+
+    @PostMapping(path = "/{movieId}/genres/{genreId}")
+    @ResponseStatus(HttpStatus.OK)
+    public MovieWithAllInfoDTO addGenreToMovie(@PathVariable Long movieId, @PathVariable Long genreId) throws NotFoundException {
+        return this.movieService.addGenreToMovie(movieId, genreId);
     }
 
     @PutMapping(path = "/{movieId}")
