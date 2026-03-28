@@ -1,4 +1,4 @@
-package fr.esgi.filmographie.movie_role_actor.dto;
+package fr.esgi.filmographie.casting.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -8,13 +8,12 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MovieRoleActorCreationDTO {
+public class CastingCreationDTO {
 
     @NotBlank
     private Long movieId;
-
     @NotBlank
     private Long roleId;
-
+    @NotBlank
     private Long actorId;
 }
