@@ -172,4 +172,74 @@ class PersonIntegrationTest {
                         .content(objectMapper.writeValueAsString(invalidUpdate)))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void shouldReturnPersonsWithJobActor() throws Exception{
+        createPerson("Leonardo", "DiCaprio", null, JobEnum.ACTOR);
+        createPerson("Clint", "Eastwood", null, JobEnum.REALISATOR_ACTOR);
+        createPerson("Quentin", "Tarantino", null, JobEnum.REALISATOR);
+
+        mockMvc.perform(get("/v1/persons/job/{job}", JobEnum.ACTOR))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].job").value("ACTOR"))
+                .andExpect(jsonPath("$[1].job").value("REALISATOR_ACTOR"));
+
+    }
+
+    @Test
+    void shouldReturnPersonsWithJobRealisator() throws Exception{
+        createPerson("Leonardo", "DiCaprio", null, JobEnum.ACTOR);
+        createPerson("Quentin", "Tarantino", null, JobEnum.REALISATOR);
+        createPerson("Clint", "Eastwood", null, JobEnum.REALISATOR_ACTOR);
+
+        mockMvc.perform(get("/v1/persons/job/{job}", JobEnum.REALISATOR))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].job").value("REALISATOR"))
+                .andExpect(jsonPath("$[1].job").value("REALISATOR_ACTOR"));
+
+    }
+
+    @Test
+    void shouldReturnPersonsWithJobRealisatorActor() throws Exception{
+        createPerson("Leonardo", "DiCaprio", null, JobEnum.ACTOR);
+        createPerson("Quentin", "Tarantino", null, JobEnum.REALISATOR);
+        createPerson("Clint", "Eastwood", null, JobEnum.REALISATOR_ACTOR);
+
+        mockMvc.perform(get("/v1/persons/job/{job}", JobEnum.REALISATOR_ACTOR))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].job").value("REALISATOR_ACTOR"));
+
+    }
+
+    @Test
+    void shouldReturnBadRequestWithJobTruc() throws Exception{
+        createPerson("Leonardo", "DiCaprio", null, JobEnum.ACTOR);
+        createPerson("Quentin", "Tarantino", null, JobEnum.REALISATOR);
+        createPerson("Clint", "Eastwood", null, JobEnum.REALISATOR_ACTOR);
+
+        mockMvc.perform(get("/v1/persons/job/{job}", "Truc"))
+                .andExpect(status().isBadRequest());
+    }
+
+    private void createPerson(String firstName, String lastName, String nickName, JobEnum job) {
+        final var personToCreate = PersonDTO.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .nickName(nickName)
+                .job(job)
+                .build();
+
+        try {
+            mockMvc.perform(post("/v1/persons")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(personToCreate)))
+                    .andExpect(status().isCreated());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
