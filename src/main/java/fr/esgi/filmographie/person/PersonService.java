@@ -1,5 +1,6 @@
 package fr.esgi.filmographie.person;
 
+import fr.esgi.filmographie.enums.JobEnum;
 import fr.esgi.filmographie.person.exception.MissingPersonNameException;
 import fr.esgi.filmographie.person.dto.PersonDTO;
 import fr.esgi.filmographie.person.exception.PersonNotFoundException;
@@ -7,7 +8,9 @@ import fr.esgi.filmographie.person.mapper.PersonMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -40,6 +43,11 @@ public class PersonService {
 
     public List<PersonDTO> getAllPersons(){
         List<PersonEntity> personEntities = personRepository.findAll();
+        return personMapper.toDto(personEntities);
+    }
+
+    public List<PersonDTO> getAllPersonsByJob(JobEnum job){
+        List<PersonEntity> personEntities = personRepository.findAllByJobIn(job.includedForFilter());
         return personMapper.toDto(personEntities);
     }
 

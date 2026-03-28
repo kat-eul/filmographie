@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -77,6 +78,92 @@ public class PersonServiceTest {
             doReturn(Optional.empty()).when(personRepository).findById(id);
             assertThatThrownBy(() -> personService.getPersonById(id))
                     .isInstanceOf(PersonNotFoundException.class);
+        }
+    }
+
+    @Nested
+    class GetAllByJobTests {
+
+        @Test
+        void shouldFetchActorAndRealisatorActorWhenJobIsActor() {
+            final var entities = List.of(
+                    PersonEntity.builder().id(1L).job(JobEnum.ACTOR).build(),
+                    PersonEntity.builder().id(2L).job(JobEnum.REALISATOR_ACTOR).build()
+            );
+            final var dtos = List.of(
+                    PersonDTO.builder().id(1L).job(JobEnum.ACTOR).build(),
+                    PersonDTO.builder().id(2L).job(JobEnum.REALISATOR_ACTOR).build()
+            );
+
+            final Set<JobEnum> expectedJobs = Set.of(JobEnum.ACTOR, JobEnum.REALISATOR_ACTOR);
+
+            doReturn(entities).when(personRepository).findAllByJobIn(expectedJobs);
+            doReturn(dtos).when(personMapper).toDto(entities);
+
+            final List<PersonDTO> result = personService.getAllPersonsByJob(JobEnum.ACTOR);
+
+            assertThat(result).containsExactlyElementsOf(dtos);
+            verify(personRepository).findAllByJobIn(expectedJobs);
+        }
+
+        @Test
+        void shouldFetchRealisatorAndRealisatorActorWhenJobIsRealisator() {
+            final var entities = List.of(
+                    PersonEntity.builder().id(1L).job(JobEnum.REALISATOR).build(),
+                    PersonEntity.builder().id(2L).job(JobEnum.REALISATOR_ACTOR).build()
+            );
+            final var dtos = List.of(
+                    PersonDTO.builder().id(1L).job(JobEnum.REALISATOR).build(),
+                    PersonDTO.builder().id(2L).job(JobEnum.REALISATOR_ACTOR).build()
+            );
+
+            final Set<JobEnum> expectedJobs = Set.of(JobEnum.REALISATOR, JobEnum.REALISATOR_ACTOR);
+
+            doReturn(entities).when(personRepository).findAllByJobIn(expectedJobs);
+            doReturn(dtos).when(personMapper).toDto(entities);
+
+            final List<PersonDTO> result = personService.getAllPersonsByJob(JobEnum.REALISATOR);
+
+            assertThat(result).containsExactlyElementsOf(dtos);
+            verify(personRepository).findAllByJobIn(expectedJobs);
+        }
+
+        @Test
+        void shouldFetchOnlyRealisatorActorWhenJobIsRealisatorActor() {
+            final var entities = List.of(
+                    PersonEntity.builder().id(1L).job(JobEnum.REALISATOR_ACTOR).build()
+            );
+            final var dtos = List.of(
+                    PersonDTO.builder().id(1L).job(JobEnum.REALISATOR_ACTOR).build()
+            );
+
+            final Set<JobEnum> expectedJobs = Set.of(JobEnum.REALISATOR_ACTOR);
+
+            doReturn(entities).when(personRepository).findAllByJobIn(expectedJobs);
+            doReturn(dtos).when(personMapper).toDto(entities);
+
+            final List<PersonDTO> result = personService.getAllPersonsByJob(JobEnum.REALISATOR_ACTOR);
+
+            assertThat(result).containsExactlyElementsOf(dtos);
+            verify(personRepository).findAllByJobIn(expectedJobs);
+        }
+
+        @Test
+        void shouldReturnAllPersonsAsDTOsWhenJobsIsFound(){
+            final PersonEntity entity1 = PersonEntity.builder().id(1L).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
+            final PersonEntity entity2 = PersonEntity.builder().id(2L).firstName("Tata").lastName("Titi").job(JobEnum.REALISATOR_ACTOR).build();
+            final PersonDTO dto1 = PersonDTO.builder().id(1L).firstName("Toto").lastName("Titi").job(JobEnum.ACTOR).build();
+            final PersonDTO dto2 = PersonDTO.builder().id(2L).firstName("Tata").lastName("Titi").job(JobEnum.REALISATOR_ACTOR).build();
+            final List<PersonEntity> enties = List.of(entity1, entity2);
+            final List<PersonDTO> dtos = List.of(dto1, dto2);
+            Set<JobEnum> expectedJobs = Set.of(JobEnum.ACTOR, JobEnum.REALISATOR_ACTOR);
+
+            doReturn(enties).when(personRepository).findAllByJobIn(expectedJobs);
+            doReturn(dtos).when(personMapper).toDto(enties);
+
+            final List<PersonDTO> result = personService.getAllPersonsByJob(JobEnum.ACTOR);
+
+            assertThat(result).hasSize(2).containsExactly(dto1, dto2);
         }
     }
 

@@ -1,5 +1,6 @@
 package fr.esgi.filmographie.person;
 
+import fr.esgi.filmographie.enums.JobEnum;
 import fr.esgi.filmographie.person.dto.PersonDTO;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -34,6 +35,12 @@ public class PersonController {
     @ResponseStatus(HttpStatus.OK)
     public PersonDTO getPersonById(@PathVariable Long personId){
         return personService.getPersonById(personId);
+    }
+
+    @GetMapping("/job/{job}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<PersonDTO> getAllPersonsByJob(@PathVariable JobEnum job){
+        return personService.getAllPersonsByJob(job);
     }
 
     @PostMapping
