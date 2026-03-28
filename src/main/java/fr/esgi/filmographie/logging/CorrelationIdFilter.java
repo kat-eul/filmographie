@@ -20,8 +20,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class CorrelationIdFilter extends OncePerRequestFilter {
 
-    public static final String MDC_KEY = "correlationId";
-    public static final String HEADER = "X-Correlation-Id";
+    private static final String MDC_KEY = "correlationId";
+    private static final String HEADER = "X-Correlation-Id";
 
     private static final int MAX_LEN = 64;
     private static final Pattern ALLOWED = Pattern.compile("^[A-Za-z0-9\\-]{1," + MAX_LEN + "}$");
