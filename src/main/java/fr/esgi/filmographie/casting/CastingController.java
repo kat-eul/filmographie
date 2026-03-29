@@ -2,7 +2,6 @@ package fr.esgi.filmographie.casting;
 
 import fr.esgi.filmographie.casting.dto.CastingDTO;
 import fr.esgi.filmographie.exception.NotFoundException;
-import fr.esgi.filmographie.casting.dto.CastingCreationDTO;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,10 +15,9 @@ import java.util.List;
 public class CastingController {
     private final CastingService movieService;
 
-    @PostMapping("/movies/{movieId}/roles/{roleId}/actors/{actorId}")
+    @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public CastingDTO create(@PathVariable Long movieId, @PathVariable Long roleId, @PathVariable Long actorId) {
-        CastingCreationDTO dto = new CastingCreationDTO(movieId, roleId, actorId);
+    public CastingDTO create(@Valid @RequestBody CastingDTO dto) {
         return movieService.create(dto);
     }
 
@@ -49,7 +47,7 @@ public class CastingController {
     }
 
     @PutMapping("/movies/{movieId}/roles/{roleId}/actors/{actorId}")
-    public CastingDTO update(@PathVariable Long movieId, @PathVariable Long roleId, @PathVariable Long actorId, @Valid @RequestBody CastingCreationDTO dto) {
+    public CastingDTO update(@PathVariable Long movieId, @PathVariable Long roleId, @PathVariable Long actorId, @Valid @RequestBody CastingDTO dto) {
         if (!movieId.equals(dto.getMovieId()) || !roleId.equals(dto.getRoleId()) || !actorId.equals(dto.getActorId())) {
             throw new NotFoundException("Casting not found with movieId: " + movieId + ", roleId: " + roleId + ", actorId: " + actorId);
         }

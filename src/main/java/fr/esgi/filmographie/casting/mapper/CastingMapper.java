@@ -1,7 +1,6 @@
 package fr.esgi.filmographie.casting.mapper;
 
 import fr.esgi.filmographie.casting.CastingEntity;
-import fr.esgi.filmographie.casting.dto.CastingCreationDTO;
 import fr.esgi.filmographie.casting.dto.CastingDTO;
 import lombok.AllArgsConstructor;
 import org.mapstruct.Mapper;
@@ -14,7 +13,7 @@ public abstract class CastingMapper {
     @Mapping(target = "id.movieId", source = "movieId")
     @Mapping(target = "id.roleId", source = "roleId")
     @Mapping(target = "id.actorId", source = "actorId")
-    public abstract CastingEntity toEntity(CastingCreationDTO dto);
+    public abstract CastingEntity toEntity(CastingDTO dto);
 
     @Mapping(target = "movieId", source = "id.movieId")
     @Mapping(target = "movieTitle", source = "movie.title")

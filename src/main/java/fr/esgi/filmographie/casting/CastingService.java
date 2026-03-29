@@ -1,6 +1,5 @@
 package fr.esgi.filmographie.casting;
 
-import fr.esgi.filmographie.casting.dto.CastingCreationDTO;
 import fr.esgi.filmographie.casting.dto.CastingDTO;
 import fr.esgi.filmographie.casting.exception.CastingNotFoundException;
 import fr.esgi.filmographie.casting.exception.NotAnActorException;
@@ -20,7 +19,7 @@ public class CastingService {
     private final CastingMapper castingMapper;
     private final List<JobEnum> allowedJobs = List.of(JobEnum.ACTOR, JobEnum.REALISATOR_ACTOR);
 
-    public CastingDTO create(CastingCreationDTO dto) {
+    public CastingDTO create(CastingDTO dto) {
         CastingEntity entity = castingMapper.toEntity(dto);
         PersonEntity person = entity.getActor();
         if(allowedJobs.contains(person.getJob())){
@@ -54,13 +53,13 @@ public class CastingService {
     public List<CastingDTO> getByActorId(Long actorId) {
         PersonEntity person = new PersonEntity();
         if(allowedJobs.contains(person.getJob())){
-            throw new NotAnActorException(person.getFirstName() + " " + person.getLastName());
+            throw new NotAnActorException(person.getFirstName() + " " + person.getLastName() + " "+"with job "+person.getJob());
         }
         List<CastingEntity> entities = castingRepository.findByActorId(actorId);
         return entities.stream().map(castingMapper::toDTO).toList();
     }
 
-    public CastingDTO update(Long movieId, Long roleId, Long personId, CastingCreationDTO dto) {
+    public CastingDTO update(Long movieId, Long roleId, Long personId, CastingDTO dto) {
         CastingId castingId = new CastingId(movieId, roleId, personId);
         Optional<CastingEntity> existingEntity =castingRepository.findById(castingId);
         CastingEntity newEntity = castingMapper.toEntity(dto);
