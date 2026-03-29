@@ -15,6 +15,13 @@ Le projet permet de manipuler les données principales d’une filmographie (fil
 - Springdoc OpenAPI (Swagger UI)
 - Maven
 
+## Documentation API (OpenAPI / Swagger)
+
+Une documentation interactive est disponible via Swagger UI :
+
+- Swagger UI : http://localhost:8080/api/swagger-ui/index.html
+- Spécification OpenAPI (JSON) : http://localhost:8080/api/v3/api-docs
+
 ## Arborescence
 
 Le code est organisé par domaine métier dans `src/main/java/fr/esgi/filmographie/` :
