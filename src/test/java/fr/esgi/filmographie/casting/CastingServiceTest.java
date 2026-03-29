@@ -3,7 +3,6 @@ package fr.esgi.filmographie.casting;
 import fr.esgi.filmographie.casting.dto.CastingDTO;
 import fr.esgi.filmographie.casting.mapper.CastingMapper;
 import fr.esgi.filmographie.enums.JobEnum;
-import fr.esgi.filmographie.genre.GenreEntity;
 import fr.esgi.filmographie.movie.MovieEntity;
 import fr.esgi.filmographie.person.PersonEntity;
 import fr.esgi.filmographie.role.RoleEntity;
@@ -42,7 +41,6 @@ public class CastingServiceTest {
     private CastingMapper castingMapper;
 
     private CastingId castingId1;
-    private CastingId castingId2;
     private CastingEntity entity1;
     private CastingEntity entity2;
     private CastingDTO dto1;
@@ -57,7 +55,7 @@ public class CastingServiceTest {
         final var secondActorEntity = PersonEntity.builder().id(5L).job(JobEnum.REALISATOR).firstName("Joseph").lastName("Gordon-Levitt").nickName("JGL").build();
 
         castingId1 = new CastingId(movieEntity.getId(), roleEntity1.getId(), actorEntity.getId());
-        castingId2 = new CastingId(movieEntity.getId(), roleEntity2.getId(), secondActorEntity.getId());
+        CastingId castingId2 = new CastingId(movieEntity.getId(), roleEntity2.getId(), secondActorEntity.getId());
         entity1 = CastingEntity.builder().id(castingId1).movie(movieEntity).role(roleEntity1).actor(actorEntity).build();
         entity2 = CastingEntity.builder().id(castingId2).movie(movieEntity).role(roleEntity2).actor(secondActorEntity).build();
 
@@ -194,8 +192,6 @@ public class CastingServiceTest {
         @Test
         void shouldThrowWhenUpdateTargetNotFound() {
             doReturn(Optional.empty()).when(castingRepository).findById(castingId1);
-            doReturn(entity1).when(castingMapper).toEntity(dto1);
-
             assertThatThrownBy(() -> castingService.update(castingId1.getMovieId(), castingId1.getRoleId(), castingId1.getActorId(), dto1))
                     .isInstanceOf(CastingNotFoundException.class);
             verify(castingRepository, never()).save(any());

@@ -22,9 +22,7 @@ public class CastingService {
     public CastingDTO create(CastingDTO dto) {
         CastingEntity entity = castingMapper.toEntity(dto);
         PersonEntity person = entity.getActor();
-        if(allowedJobs.contains(person.getJob())){
-            throw new NotAnActorException(person.getFirstName() + " " + person.getLastName());
-        }
+        validateActor(person);
         CastingEntity savedEntity = castingRepository.save(entity);
         return castingMapper.toDTO(savedEntity);
     }
@@ -52,44 +50,38 @@ public class CastingService {
 
     public List<CastingDTO> getByActorId(Long actorId) {
         PersonEntity person = new PersonEntity();
-        if(allowedJobs.contains(person.getJob())){
-            throw new NotAnActorException(person.getFirstName() + " " + person.getLastName() + " "+"with job "+person.getJob());
-        }
+        validateActor(person);
         List<CastingEntity> entities = castingRepository.findByActorId(actorId);
         return entities.stream().map(castingMapper::toDTO).toList();
     }
 
     public CastingDTO update(Long movieId, Long roleId, Long personId, CastingDTO dto) {
         CastingId castingId = new CastingId(movieId, roleId, personId);
-        Optional<CastingEntity> existingEntity =castingRepository.findById(castingId);
-        CastingEntity newEntity = castingMapper.toEntity(dto);
-        if(existingEntity.isEmpty()){
-            throw new CastingNotFoundException(movieId, roleId, personId);
-        }
+        CastingEntity existing = castingRepository.findById(castingId)
+                .orElseThrow(() -> new CastingNotFoundException(movieId, roleId, personId));
+        CastingEntity updateEntity = castingMapper.toEntity(dto);
 
-        if(newEntity.getMovie() != null){
-             existingEntity.get().setMovie(newEntity.getMovie());
-        }
-        if(newEntity.getRole() != null){
-             existingEntity.get().setRole(newEntity.getRole());
-        }
-        if(newEntity.getActor() != null){
-            PersonEntity person = newEntity.getActor();
-            if(allowedJobs.contains(person.getJob())){
-                throw new NotAnActorException(person.getFirstName() + " " + person.getLastName());
-            }
-            existingEntity.get().setActor(newEntity.getActor());
-        }
-        CastingEntity updatedEntity = castingRepository.save(existingEntity.get());
-        return castingMapper.toDTO(updatedEntity);
+        Optional.ofNullable(updateEntity.getMovie()).ifPresent(existing::setMovie);
+        Optional.ofNullable(updateEntity.getRole()).ifPresent(existing::setRole);
+        Optional.ofNullable(updateEntity.getActor()).ifPresent(actor -> {
+            validateActor(actor);
+            existing.setActor(actor);
+        });
+
+        return castingMapper.toDTO(castingRepository.save(existing));
     }
 
     public void delete(Long movieId, Long roleId, Long personId) {
         CastingId castingId = new CastingId(movieId, roleId, personId);
-        Optional<CastingEntity> existingEntity = castingRepository.findById(castingId);
-        if(existingEntity.isEmpty()){
-            throw new CastingNotFoundException(movieId, roleId, personId);
+        CastingEntity existing = castingRepository.findById(castingId)
+                .orElseThrow(() -> new CastingNotFoundException(movieId, roleId, personId));
+
+        castingRepository.delete(existing);
+    }
+
+    private void validateActor(PersonEntity person) {
+        if (allowedJobs.contains(person.getJob())) {
+            throw new NotAnActorException(person.getFirstName() + " " + person.getLastName());
         }
-        castingRepository.delete(existingEntity.get());
     }
 }

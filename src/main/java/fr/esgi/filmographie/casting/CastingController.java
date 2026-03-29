@@ -13,37 +13,37 @@ import java.util.List;
 @RequestMapping("/v1/castings")
 @AllArgsConstructor
 public class CastingController {
-    private final CastingService movieService;
+    private final CastingService castingService;
 
-    @PostMapping("")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CastingDTO create(@Valid @RequestBody CastingDTO dto) {
-        return movieService.create(dto);
+        return castingService.create(dto);
     }
 
     @GetMapping("/movies/{movieId}/roles/{roleId}/actors/{actorId}")
     public CastingDTO getById(@PathVariable Long movieId, @PathVariable Long roleId, @PathVariable Long actorId) {
-        return movieService.getById(movieId, roleId, actorId);
+        return castingService.getById(movieId, roleId, actorId);
     }
 
     @GetMapping
     public List<CastingDTO> getAll() {
-        return movieService.getAll();
+        return castingService.getAll();
     }
 
     @GetMapping("/movies/{movieId}")
     public List<CastingDTO> getByMovieId(@PathVariable Long movieId) {
-        return movieService.getByMovieId(movieId);
+        return castingService.getByMovieId(movieId);
     }
 
     @GetMapping("/roles/{roleId}")
     public List<CastingDTO> getByRoleId(@PathVariable Long roleId) {
-        return movieService.getByRoleId(roleId);
+        return castingService.getByRoleId(roleId);
     }
 
     @GetMapping("/actors/{actorId}")
     public List<CastingDTO> getByActorId(@PathVariable Long actorId) {
-        return movieService.getByActorId(actorId);
+        return castingService.getByActorId(actorId);
     }
 
     @PutMapping("/movies/{movieId}/roles/{roleId}/actors/{actorId}")
@@ -51,12 +51,12 @@ public class CastingController {
         if (!movieId.equals(dto.getMovieId()) || !roleId.equals(dto.getRoleId()) || !actorId.equals(dto.getActorId())) {
             throw new NotFoundException("Casting not found with movieId: " + movieId + ", roleId: " + roleId + ", actorId: " + actorId);
         }
-        return movieService.create(dto);
+        return castingService.create(dto);
     }
 
     @DeleteMapping("/movies/{movieId}/roles/{roleId}/actors/{actorId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long movieId, @PathVariable Long roleId, @PathVariable Long actorId) {
-        movieService.delete(movieId, roleId, actorId);
+        castingService.delete(movieId, roleId, actorId);
     }
 }
