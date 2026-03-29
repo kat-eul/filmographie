@@ -4,8 +4,11 @@ import fr.esgi.filmographie.casting.dto.CastingDTO;
 import fr.esgi.filmographie.casting.mapper.CastingMapper;
 import fr.esgi.filmographie.enums.JobEnum;
 import fr.esgi.filmographie.movie.MovieEntity;
+import fr.esgi.filmographie.movie.MovieRepository;
 import fr.esgi.filmographie.person.PersonEntity;
+import fr.esgi.filmographie.person.PersonRepository;
 import fr.esgi.filmographie.role.RoleEntity;
+import fr.esgi.filmographie.role.RoleRepository;
 import fr.esgi.filmographie.exception.NotFoundException;
 import fr.esgi.filmographie.casting.exception.CastingNotFoundException;
 import fr.esgi.filmographie.casting.exception.NotAnActorException;
@@ -38,6 +41,15 @@ public class CastingServiceTest {
     private CastingRepository castingRepository;
 
     @Mock
+    private MovieRepository movieRepository;
+
+    @Mock
+    private RoleRepository roleRepository;
+
+    @Mock
+    private PersonRepository personRepository;
+
+    @Mock
     private CastingMapper castingMapper;
 
     private CastingId castingId1;
@@ -45,14 +57,19 @@ public class CastingServiceTest {
     private CastingEntity entity2;
     private CastingDTO dto1;
     private CastingDTO dto2;
+    private MovieEntity movieEntity;
+    private RoleEntity roleEntity1;
+    private RoleEntity roleEntity2;
+    private PersonEntity actorEntity;
+    private PersonEntity secondActorEntity;
 
     @BeforeEach
     void setUp() {
-        final var movieEntity = MovieEntity.builder().id(1L).title("Inception").build();
-        final var roleEntity1 = RoleEntity.builder().id(2L).name("Dom Cobb").build();
-        final var roleEntity2 = RoleEntity.builder().id(3L).name("Un autre role").build();
-        final var actorEntity = PersonEntity.builder().id(4L).job(JobEnum.REALISATOR).firstName("Leonardo").lastName("DiCaprio").nickName("Leo").build();
-        final var secondActorEntity = PersonEntity.builder().id(5L).job(JobEnum.REALISATOR).firstName("Joseph").lastName("Gordon-Levitt").nickName("JGL").build();
+        movieEntity = MovieEntity.builder().id(1L).title("Inception").build();
+        roleEntity1 = RoleEntity.builder().id(2L).name("Dom Cobb").build();
+        roleEntity2 = RoleEntity.builder().id(3L).name("Un autre role").build();
+        actorEntity = PersonEntity.builder().id(4L).job(JobEnum.ACTOR).firstName("Leonardo").lastName("DiCaprio").nickName("Leo").build();
+        secondActorEntity = PersonEntity.builder().id(5L).job(JobEnum.ACTOR).firstName("Joseph").lastName("Gordon-Levitt").nickName("JGL").build();
 
         castingId1 = new CastingId(movieEntity.getId(), roleEntity1.getId(), actorEntity.getId());
         CastingId castingId2 = new CastingId(movieEntity.getId(), roleEntity2.getId(), secondActorEntity.getId());
@@ -102,6 +119,8 @@ public class CastingServiceTest {
 
             assertThat(result).isEqualTo(dto1);
         }
+
+        @Test
         void shouldThrowExceptionWhenNotFound() {
             doReturn(Optional.empty()).when(castingRepository).findById(castingId1);
 
@@ -110,32 +129,6 @@ public class CastingServiceTest {
                     castingId1.getRoleId(),
                     castingId1.getActorId()
             )).isInstanceOf(CastingNotFoundException.class);
-        }
-    }
-
-    @Nested
-    @DisplayName("create tests")
-    class CreateTests {
-        @Test
-        void shouldCreateCastingWhenJobIsNotAllowed() {
-            doReturn(entity1).when(castingMapper).toEntity(dto1);
-            doReturn(entity1).when(castingRepository).save(entity1);
-            doReturn(dto1).when(castingMapper).toDTO(entity1);
-
-            final var result = castingService.create(dto1);
-
-            assertThat(result).isEqualTo(dto1);
-            verify(castingRepository).save(entity1);
-        }
-
-        @Test
-        void shouldThrowWhenActorJobIsAllowedActor() {
-            final var actor = PersonEntity.builder().id(99L).firstName("Tom").lastName("Hardy").job(JobEnum.ACTOR).build();
-            final var invalidEntity = CastingEntity.builder().id(castingId1).movie(entity1.getMovie()).role(entity1.getRole()).actor(actor).build();
-            doReturn(invalidEntity).when(castingMapper).toEntity(dto1);
-
-            assertThatThrownBy(() -> castingService.create(dto1)).isInstanceOf(NotAnActorException.class);
-            verify(castingRepository, never()).save(any());
         }
     }
 
@@ -166,66 +159,6 @@ public class CastingServiceTest {
     }
 
     @Nested
-    @DisplayName("update tests")
-    class UpdateTests {
-        @Test
-        void shouldUpdateAllFields() {
-            final var updatedMovie = MovieEntity.builder().id(10L).title("Interstellar").build();
-            final var updatedRole = RoleEntity.builder().id(20L).name("Cooper").build();
-            final var updatedActor = PersonEntity.builder().id(30L).firstName("Matthew").lastName("McConaughey").job(JobEnum.REALISATOR).build();
-            final var updateEntity = CastingEntity.builder().id(castingId1).movie(updatedMovie).role(updatedRole).actor(updatedActor).build();
-            final var updatedResult = CastingEntity.builder().id(castingId1).movie(updatedMovie).role(updatedRole).actor(updatedActor).build();
-
-            doReturn(Optional.of(entity1)).when(castingRepository).findById(castingId1);
-            doReturn(updateEntity).when(castingMapper).toEntity(dto1);
-            doReturn(updatedResult).when(castingRepository).save(entity1);
-            doReturn(dto1).when(castingMapper).toDTO(updatedResult);
-
-            final var result = castingService.update(castingId1.getMovieId(), castingId1.getRoleId(), castingId1.getActorId(), dto1);
-
-            assertThat(result).isEqualTo(dto1);
-            assertThat(entity1.getMovie()).isEqualTo(updatedMovie);
-            assertThat(entity1.getRole()).isEqualTo(updatedRole);
-            assertThat(entity1.getActor()).isEqualTo(updatedActor);
-        }
-
-        @Test
-        void shouldThrowWhenUpdateTargetNotFound() {
-            doReturn(Optional.empty()).when(castingRepository).findById(castingId1);
-            assertThatThrownBy(() -> castingService.update(castingId1.getMovieId(), castingId1.getRoleId(), castingId1.getActorId(), dto1))
-                    .isInstanceOf(CastingNotFoundException.class);
-            verify(castingRepository, never()).save(any());
-        }
-
-        @Test
-        void shouldThrowWhenUpdatedActorJobIsAllowedActor() {
-            final var invalidActor = PersonEntity.builder().id(88L).firstName("Cillian").lastName("Murphy").job(JobEnum.ACTOR).build();
-            final var updateEntity = CastingEntity.builder().id(castingId1).actor(invalidActor).build();
-
-            doReturn(Optional.of(entity1)).when(castingRepository).findById(castingId1);
-            doReturn(updateEntity).when(castingMapper).toEntity(dto1);
-
-            assertThatThrownBy(() -> castingService.update(castingId1.getMovieId(), castingId1.getRoleId(), castingId1.getActorId(), dto1))
-                    .isInstanceOf(NotAnActorException.class);
-            verify(castingRepository, never()).save(any());
-        }
-
-        @Test
-        void shouldKeepFieldsWhenIncomingEntityHasNulls() {
-            final var updateEntity = CastingEntity.builder().id(castingId1).movie(null).role(null).actor(null).build();
-            doReturn(Optional.of(entity1)).when(castingRepository).findById(castingId1);
-            doReturn(updateEntity).when(castingMapper).toEntity(dto1);
-            doReturn(entity1).when(castingRepository).save(entity1);
-            doReturn(dto1).when(castingMapper).toDTO(entity1);
-
-            final var result = castingService.update(castingId1.getMovieId(), castingId1.getRoleId(), castingId1.getActorId(), dto1);
-
-            assertThat(result).isEqualTo(dto1);
-            verify(castingRepository).save(entity1);
-        }
-    }
-
-    @Nested
     @DisplayName("delete tests")
     class DeleteTests {
         @Test
@@ -244,6 +177,77 @@ public class CastingServiceTest {
             assertThatThrownBy(() -> castingService.delete(castingId1.getMovieId(), castingId1.getRoleId(), castingId1.getActorId()))
                     .isInstanceOf(CastingNotFoundException.class);
             verify(castingRepository, never()).delete(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("create tests")
+    class CreateTests {
+        @Test
+        void shouldCreateCastingWhenActorJobIsAllowedActor() {
+            doReturn(Optional.of(movieEntity)).when(movieRepository).findById(dto1.getMovieId());
+            doReturn(Optional.of(roleEntity1)).when(roleRepository).findById(dto1.getRoleId());
+            doReturn(Optional.of(actorEntity)).when(personRepository).findById(dto1.getActorId());
+            doReturn(entity1).when(castingRepository).save(any(CastingEntity.class));
+            doReturn(dto1).when(castingMapper).toDTO(entity1);
+
+            final var result = castingService.create(dto1);
+
+            assertThat(result).isEqualTo(dto1);
+            verify(movieRepository).findById(dto1.getMovieId());
+            verify(roleRepository).findById(dto1.getRoleId());
+            verify(personRepository).findById(dto1.getActorId());
+            verify(castingRepository).save(any(CastingEntity.class));
+        }
+
+        @Test
+        void shouldThrowWhenActorJobIsNotAllowedActor() {
+            final var director = PersonEntity.builder().id(99L).job(JobEnum.REALISATOR).firstName("Chris").lastName("Nolan").build();
+            final var invalidDto = CastingDTO.builder()
+                    .movieId(movieEntity.getId())
+                    .roleId(roleEntity1.getId())
+                    .actorId(director.getId())
+                    .build();
+
+            doReturn(Optional.of(movieEntity)).when(movieRepository).findById(invalidDto.getMovieId());
+            doReturn(Optional.of(roleEntity1)).when(roleRepository).findById(invalidDto.getRoleId());
+            doReturn(Optional.of(director)).when(personRepository).findById(invalidDto.getActorId());
+
+            assertThatThrownBy(() -> castingService.create(invalidDto))
+                    .isInstanceOf(NotAnActorException.class);
+            verify(castingRepository, never()).save(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("update tests")
+    class UpdateTests {
+        @Test
+        void shouldUpdateCastingWhenFound() {
+            doReturn(Optional.of(entity1)).when(castingRepository).findById(castingId1);
+            doReturn(Optional.of(movieEntity)).when(movieRepository).findById(dto2.getMovieId());
+            doReturn(Optional.of(roleEntity2)).when(roleRepository).findById(dto2.getRoleId());
+            doReturn(Optional.of(secondActorEntity)).when(personRepository).findById(dto2.getActorId());
+            doReturn(entity2).when(castingRepository).save(any(CastingEntity.class));
+            doReturn(dto2).when(castingMapper).toDTO(entity2);
+
+            final var result = castingService.update(castingId1.getMovieId(), castingId1.getRoleId(), castingId1.getActorId(), dto2);
+
+            assertThat(result).isEqualTo(dto2);
+            verify(castingRepository).findById(castingId1);
+            verify(movieRepository).findById(dto2.getMovieId());
+            verify(roleRepository).findById(dto2.getRoleId());
+            verify(personRepository).findById(dto2.getActorId());
+            verify(castingRepository).save(any(CastingEntity.class));
+        }
+
+        @Test
+        void shouldThrowWhenUpdateTargetNotFound() {
+            doReturn(Optional.empty()).when(castingRepository).findById(castingId1);
+
+            assertThatThrownBy(() -> castingService.update(castingId1.getMovieId(), castingId1.getRoleId(), castingId1.getActorId(), dto1))
+                    .isInstanceOf(CastingNotFoundException.class);
+            verify(castingRepository, never()).save(any());
         }
     }
 }
