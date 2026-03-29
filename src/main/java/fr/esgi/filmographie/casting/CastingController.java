@@ -1,7 +1,6 @@
 package fr.esgi.filmographie.casting;
 
 import fr.esgi.filmographie.casting.dto.CastingDTO;
-import fr.esgi.filmographie.exception.NotFoundException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -48,10 +47,7 @@ public class CastingController {
 
     @PutMapping("/movies/{movieId}/roles/{roleId}/actors/{actorId}")
     public CastingDTO update(@PathVariable Long movieId, @PathVariable Long roleId, @PathVariable Long actorId, @Valid @RequestBody CastingDTO dto) {
-        if (!movieId.equals(dto.getMovieId()) || !roleId.equals(dto.getRoleId()) || !actorId.equals(dto.getActorId())) {
-            throw new NotFoundException("Casting not found with movieId: " + movieId + ", roleId: " + roleId + ", actorId: " + actorId);
-        }
-        return castingService.create(dto);
+        return castingService.update(movieId, roleId, actorId, dto);
     }
 
     @DeleteMapping("/movies/{movieId}/roles/{roleId}/actors/{actorId}")
