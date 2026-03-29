@@ -44,13 +44,13 @@ Tests dans `src/test/java/fr/esgi/filmographie/`.
 
 - JDK 25
 - Maven (ou wrapper Maven fonctionnel)
-- PostgreSQL accessible en local
+- PostgreSQL accessible en local \(\*ou via Docker Compose\)
 
 ## Configuration
 
 Configuration principale : `src/main/resources/application.properties`
 
-Exemple actuel :
+Configuration actuel :
 
 - `server.servlet.context-path=/api`
 - `spring.datasource.url=jdbc:postgresql://localhost:5432/filmographie`
@@ -58,13 +58,9 @@ Exemple actuel :
 - `spring.datasource.password=postgres`
 - `spring.jpa.hibernate.ddl-auto=update`
 
-Adapte ces valeurs selon ton environnement.
 
 ## Lancer le projet
 
-Avec Maven installé :
-
 ```powershell
 docker compose up -d
-mvn spring-boot:run
 ```
